@@ -8,7 +8,6 @@ import (
 	"github.com/chefe/unews/twentymin/json/post"
 	"github.com/gorilla/feeds"
 	"log"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -107,7 +106,7 @@ func getContent(url string) string {
 			for _, e := range p.Items {
 				switch e.Type {
 				case "htmlTextItem":
-					content += removeLinks(e.HTMLText)
+					content += helper.RemoveLinks(e.HTMLText)
 				case "internalLink":
 					content += e.HTMLText
 				default:
@@ -176,9 +175,4 @@ func createVideoHTML(p post.ArticleElementJSON) string {
 	html += "Dein Browser unterstützt keine Videos.</video>"
 
 	return html
-}
-
-func removeLinks(html string) string {
-	re := regexp.MustCompile(`<a href[^>]*>(.*)<\/a>`)
-	return string(re.ReplaceAll([]byte(html), []byte("$1")))
 }

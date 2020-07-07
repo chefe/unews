@@ -5,7 +5,13 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 )
+
+func RemoveLinks(html string) string {
+	re := regexp.MustCompile(`<a href[^>]*>(.*)<\/a>`)
+	return string(re.ReplaceAll([]byte(html), []byte("$1")))
+}
 
 func GetImageAsBase64URL(url string) (string, error) {
 	resp, err := http.Get(url)
