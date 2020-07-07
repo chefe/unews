@@ -77,6 +77,7 @@ func getContent(url string) string {
 
 	inner, err := crawler.GetNextDataJSONFromPage(url)
 	if err != nil {
+		log.Fatal("Error while processing " + url)
 		log.Fatal(err)
 		return "<p>Inhalt konnte nicht geladen werden!</p>"
 	}
@@ -84,6 +85,7 @@ func getContent(url string) string {
 	var n post.PostPageJSON
 	err = json.Unmarshal([]byte(inner), &n)
 	if err != nil {
+		log.Fatal("Error while processing " + url)
 		log.Fatal(err)
 		return "<p>Inhalt konnte nicht geladen werden!</p>"
 	}
@@ -108,6 +110,7 @@ func getContent(url string) string {
 				case "internalLink":
 					content += e.HTMLText
 				default:
+					log.Fatal("Error while processing " + url)
 					log.Fatal("Unsupported block element typ: " + e.Type)
 				}
 			}
@@ -139,6 +142,7 @@ func getContent(url string) string {
 		case "publishDate":
 			// ignore
 		default:
+			log.Fatal("Error while processing " + url)
 			log.Fatal("Unsupported article element typ: " + p.Type)
 		}
 	}
