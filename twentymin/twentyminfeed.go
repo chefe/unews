@@ -77,16 +77,14 @@ func getContent(url string) string {
 
 	inner, err := crawler.GetNextDataJSONFromPage(url)
 	if err != nil {
-		log.Fatal("Error while processing " + url)
-		log.Fatal(err)
+		log.Fatal("Error while fetching data from " + url)
 		return "<p>Inhalt konnte nicht geladen werden!</p>"
 	}
 
 	var n post.PostPageJSON
 	err = json.Unmarshal([]byte(inner), &n)
 	if err != nil {
-		log.Fatal("Error while processing " + url)
-		log.Fatal(err)
+		log.Fatal("Error while unmarshal data from " + url)
 		return "<p>Inhalt konnte nicht geladen werden!</p>"
 	}
 
@@ -101,21 +99,7 @@ func getContent(url string) string {
 		case "lead":
 			content += "<p><strong><em>" + p.HTMLText + "</em></strong></p>"
 		case "textBlockArray":
-			content += "<p>"
-
-			for _, e := range p.Items {
-				switch e.Type {
-				case "htmlTextItem":
-					content += helper.RemoveLinks(e.HTMLText)
-				case "internalLink":
-					content += e.HTMLText
-				default:
-					log.Fatal("Error while processing " + url)
-					log.Fatal("Unsupported block element typ: " + e.Type)
-				}
-			}
-
-			content += "</p>"
+			content += handleTextBlockArray(p, url)
 		case "crosshead":
 			content += "<h3>" + p.HTMLText + "</h3>"
 		case "unordered-list":
@@ -124,7 +108,7 @@ func getContent(url string) string {
 			content += "<blockquote><p>" + p.Quote + "</p><footer>"
 			content += p.Author + "</footer></blockquote>"
 		case "container":
-			// ignore
+			content += handleContainer(p, url)
 		case "slideshow":
 			// ignore
 		case "agencies":
@@ -144,13 +128,61 @@ func getContent(url string) string {
 		case "footer":
 			// ignore
 		default:
-			log.Fatal("Error while processing " + url)
-			log.Fatal("Unsupported article element typ: " + p.Type)
+			log.Print("Unsupported article element typ: " + p.Type + "\n -> " + url)
 		}
 	}
 
 	content += "<p><small>Quelle: <a href=\"" + url + "\">20min.ch</a></small></p>"
 	return content
+}
+
+func handleTextBlockArray(p post.ArticleElementJSON, url string) string {
+	var content string
+
+	for _, e := range p.Items {
+		switch e.Type {
+		case "htmlTextItem":
+			content += helper.RemoveLinks(e.HTMLText)
+		case "internalLink":
+			content += e.HTMLText
+		default:
+			log.Print("Unsupported block element typ: " + e.Type + "\n -> " + url)
+		}
+	}
+
+	return "<p>" + content + "</p>"
+}
+
+func handleContainer(container post.ArticleElementJSON, url string) string {
+	var content string
+
+	for _, p := range container.Elements {
+		switch p.Type {
+		case "title":
+			content += "<h3>" + p.HTMLText + "</h3>"
+		case "unordered-list":
+			content += "<p>" + p.HTMLText + "</p>"
+		case "textBlockArray":
+			content += handleTextBlockArray(p, url)
+		case "image":
+			content += createFigureHTML(p.Image)
+		case "title-header":
+			// ignore
+		case "embed":
+			// ignore
+		default:
+			log.Print("Unsupported container element typ: " + p.Type + "\n -> " + url)
+		}
+	}
+
+	styles := []string{
+		"padding: 10px;",
+		"margin: 10px 0;",
+		"border: 1px solid black;",
+		"background-color: rgba(0, 0, 0, 0.1);",
+	}
+
+	return "<div style=\"" + strings.Join(styles, "") + "\">" + content + "</div>"
 }
 
 func createFigureHTML(image post.ImageJSON) string {

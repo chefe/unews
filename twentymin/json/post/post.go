@@ -42,6 +42,9 @@ type ArticleElementJSON struct {
 	VideoThumbnail string      `json:"thumbnail"`
 	VideoURL       string      `json:"url_high"`
 	Content        ArticleJSON `json:"content"`
+
+	// for container type
+	Elements []ArticleElementJSON `json:"elements"`
 }
 
 type ImageJSON struct {
