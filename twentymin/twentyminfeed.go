@@ -2,6 +2,7 @@ package twentymin
 
 import (
 	"encoding/json"
+	"github.com/chefe/unews/helper"
 	"github.com/chefe/unews/twentymin/crawler"
 	"github.com/chefe/unews/twentymin/json/index"
 	"github.com/chefe/unews/twentymin/json/post"
@@ -157,7 +158,7 @@ func createFigureHTML(image post.ImageJSON) string {
 	html := ""
 
 	url := image.Variants.Small.Src
-	src, err := crawler.GetImageAsBase64URL(url)
+	src, err := helper.GetImageAsBase64URL(url)
 	if err == nil {
 		html += "<figure><img src=\"" + src + "\"><figcaption>"
 		html += image.Caption.Text + "</figcaption></figure>"
@@ -168,7 +169,7 @@ func createFigureHTML(image post.ImageJSON) string {
 
 func createVideoHTML(p post.ArticleElementJSON) string {
 	src := p.Content.Elements[0].VideoURL
-	poster, _ := crawler.GetImageAsBase64URL(p.Content.Elements[0].VideoThumbnail)
+	poster, _ := helper.GetImageAsBase64URL(p.Content.Elements[0].VideoThumbnail)
 
 	html := "<video controls preload=\"metadata\" poster=\"" + poster + "\">"
 	html += "<source src=\"" + src + "\" type=\"video/mp4\">"

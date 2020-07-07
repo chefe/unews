@@ -2,6 +2,7 @@ package srf
 
 import (
 	"github.com/antchfx/htmlquery"
+	"github.com/chefe/unews/helper"
 	"github.com/gorilla/feeds"
 	"github.com/mmcdole/gofeed"
 	"golang.org/x/net/html"
@@ -190,7 +191,8 @@ func handleDiv(node *html.Node, url string) string {
 
 func createFigure(node *html.Node) string {
 	srcNode := htmlquery.FindOne(node, "//img/@src")
-	html := "<img src=\"" + htmlquery.InnerText(srcNode) + "\">"
+	src, _ := helper.GetImageAsBase64URL(htmlquery.InnerText(srcNode))
+	html := "<img src=\"" + src + "\">"
 
 	captionNode := htmlquery.FindOne(node, "//span[@class='media-caption__description']")
 	if captionNode != nil {
