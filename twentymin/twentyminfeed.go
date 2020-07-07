@@ -141,6 +141,8 @@ func getContent(url string) string {
 			// ignore
 		case "publishDate":
 			// ignore
+		case "footer":
+			// ignore
 		default:
 			log.Fatal("Error while processing " + url)
 			log.Fatal("Unsupported article element typ: " + p.Type)
